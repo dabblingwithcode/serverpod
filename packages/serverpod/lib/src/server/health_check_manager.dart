@@ -31,15 +31,20 @@ class HealthCheckManager {
   /// Starts the health check manager.
   Future<void> start() async {
     _running = true;
-    try {
-      await SystemResources.init();
-    } catch (e, stackTrace) {
-      _reportException(
-        e,
-        stackTrace,
-        message:
-            'CPU and memory usage metrics are not supported on this platform.',
-      );
+     if (!Platform.isWindows) {
+      try {
+        await SystemResources.init();
+      } catch (e, stackTrace) {
+        _reportException(
+          e,
+          stackTrace,
+          message:
+              'CPU and memory usage metrics are not supported on this platform.',
+        );
+      }
+    } else {
+      stdout.writeln(
+          '\x1B[33mWARNING: Skipping health checks because windows does not support them.\x1B[0m');
     }
     _scheduleNextCheck();
   }
