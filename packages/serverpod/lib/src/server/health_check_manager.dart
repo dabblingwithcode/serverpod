@@ -7,8 +7,8 @@ import 'package:serverpod/src/database/database_pool_manager.dart';
 import 'package:serverpod/src/server/command_line_args.dart';
 import 'package:serverpod/src/server/health_check.dart';
 import 'package:serverpod/src/server/serverpod.dart';
-import 'package:system_resources/system_resources.dart';
 import 'package:serverpod/src/util/date_time_extension.dart';
+import 'package:system_resources/system_resources.dart';
 
 /// Performs health checks on the server once a minute, typically this class
 /// is managed internally by Serverpod. Writes results to the database.
@@ -31,23 +31,14 @@ class HealthCheckManager {
   /// Starts the health check manager.
   Future<void> start() async {
     _running = true;
-     /// Since windows in not supported in [SystemResources], we skip them for this platform
-     if (!Platform.isWindows) {
-      try {
-        await SystemResources.init();
-      } catch (e, stackTrace) {
-        _reportException(
-          e,
-          stackTrace,
-          message:
-              'CPU and memory usage metrics are not supported on this platform.',
-        );
-      }
-    } else {
-     /// Notify windows users that the health checks are being skipped for this platform.
-     stderr.writeln(
-          'WARNING: Skipping health checks because windows does not support them.');
+
+    try {
+      await SystemResources.init();
+    } catch (e) {
+      stderr.writeln(
+          'WARNING: CPU and memory usage metrics are not supported on this platform.');
     }
+
     _scheduleNextCheck();
   }
 
