@@ -31,6 +31,7 @@ class HealthCheckManager {
   /// Starts the health check manager.
   Future<void> start() async {
     _running = true;
+     /// Since windows in not supported in [SystemResources], we skip them for this platform
      if (!Platform.isWindows) {
       try {
         await SystemResources.init();
@@ -43,8 +44,9 @@ class HealthCheckManager {
         );
       }
     } else {
-      stdout.writeln(
-          '\x1B[33mWARNING: Skipping health checks because windows does not support them.\x1B[0m');
+     /// Notify windows users that the health checks are being skipped for this platform.
+     stderr.writeln(
+          'WARNING: Skipping health checks because windows does not support them.');
     }
     _scheduleNextCheck();
   }
